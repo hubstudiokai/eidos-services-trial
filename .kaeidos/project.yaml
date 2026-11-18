@@ -1,0 +1,24 @@
+# How KAEIDOS builds, checks, runs and previews this repository. Its agents run these commands
+# inside the dev container; KAEIDOS never guesses a command.
+version: 1
+environment: .devcontainer/devcontainer.json
+services:
+  - {name: db, kind: postgres, version: "18", url: DATABASE_URL}
+components:
+  - name: web
+    path: .
+    setup: npm ci
+    test: npm test
+    lint: npm run lint
+    start: npm start
+    services: [db]
+    migrate: npx prisma migrate deploy
+    preview:
+      type: web
+      port: 3000
+      healthPath: /health
+      seed: npm run seed
+      reload: restart
+sensitivePaths:
+  - '.github/workflows/**'
+  - '.kaeidos/**'

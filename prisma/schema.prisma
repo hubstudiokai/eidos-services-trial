@@ -1,0 +1,15 @@
+// The test repository's data model, as Prisma reads it; `migrations/` holds what it generated.
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Note {
+  id        Int      @id @default(autoincrement())
+  body      String
+  createdAt DateTime @default(now())
+}

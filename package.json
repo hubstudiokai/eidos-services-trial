@@ -1,0 +1,23 @@
+{
+  "name": "kaeidos-test-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A tiny web app that KAEIDOS's agents change, to prove the factory end to end.",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test",
+    "lint": "node --check server.js && node --check src/greeting.js && node --check src/app.js && node --check src/notes.js && node --check prisma/seed.js",
+    "postinstall": "prisma generate",
+    "seed": "node prisma/seed.js"
+  },
+  "dependencies": {
+    "@prisma/client": "6.19.3"
+  },
+  "devDependencies": {
+    "prisma": "6.19.3"
+  }
+}
