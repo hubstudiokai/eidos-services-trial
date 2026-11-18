@@ -18,7 +18,9 @@ after(() => new Promise((resolve) => server.close(resolve)));
 test('shows the greeting page', async () => {
   const response = await fetch(`${base}/?name=Ada`);
   assert.equal(response.status, 200);
-  assert.match(await response.text(), /<h1>Bonjour, Ada !<\/h1>/);
+  const html = await response.text();
+  assert.match(html, /<h1>Bonjour, Ada !<\/h1>/);
+  assert.match(html, /<title>Mes notes<\/title>/);
 });
 
 test('shows the navigation bar and page layout with links to separate pages and green login button', async () => {
