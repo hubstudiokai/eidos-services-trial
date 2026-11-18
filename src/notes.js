@@ -14,6 +14,7 @@ async function defaultStore() {
     const prisma = new PrismaClient();
     client = {
       count: () => prisma.note.count(),
+      lastNote: () => prisma.note.findFirst({ orderBy: { createdAt: 'desc' } }),
       add: (body) => prisma.note.create({ data: { body } }),
     };
   }
@@ -38,10 +39,15 @@ export async function handleNotes(request, response, render, getStore = defaultS
     const store = await getStore();
     if (request.method === 'GET') {
       const count = await store.count();
+      const last = typeof store.lastNote === 'function' ? await store.lastNote() : null;
+      const lastDateStr = last?.createdAt
+        ? new Date(last.createdAt).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' })
+        : null;
       const content = `
       <section class="card">
         <h1>Notes</h1>
         <p>Notes enregistrées : <strong id="count">${count}</strong></p>
+        ${lastDateStr ? `<p>Dernière note ajoutée : <span id="last-date">${lastDateStr}</span></p>` : ''}
         <form method="post" action="/notes">
           <input name="body" required maxlength="200" aria-label="Note" />
           <button type="submit">Ajouter</button>
