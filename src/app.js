@@ -27,7 +27,7 @@ function layout(content, currentPath = '/') {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Application de test</title>
+    <title>Mes notes</title>
     <style>
       * {
         box-sizing: border-box;
@@ -180,7 +180,7 @@ function layout(content, currentPath = '/') {
       ${content}
     </main>
     <footer>
-      <p>&copy; 2026 Application de test. Tous droits réservés.</p>
+      <p>&copy; 2026 Mes notes. Tous droits réservés.</p>
     </footer>
   </body>
 </html>
