@@ -102,6 +102,19 @@ function layout(content, currentPath = '/') {
       .btn-login:hover {
         background-color: #059669;
       }
+      .btn-add {
+        background-color: #10b981;
+        color: #fff !important;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-weight: 600;
+        transition: background-color 0.2s;
+        border: none;
+        cursor: pointer;
+      }
+      .btn-add:hover {
+        background-color: #059669;
+      }
       main {
         max-width: 1100px;
         margin: 2rem auto;

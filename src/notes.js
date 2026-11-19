@@ -50,7 +50,7 @@ export async function handleNotes(request, response, render, getStore = defaultS
         ${lastDateStr ? `<p>Dernière note ajoutée : <span id="last-date">${lastDateStr}</span></p>` : ''}
         <form method="post" action="/notes">
           <input name="body" required maxlength="200" aria-label="Note" />
-          <button type="submit">Ajouter</button>
+          <button type="submit" class="btn-add">Ajouter</button>
         </form>
       </section>
   `;

@@ -28,6 +28,7 @@ test('shows the count of notes and a form', async () => {
   assert.match(html, /<strong id="count">1<\/strong>/);
   assert.match(html, /id="last-date"/);
   assert.match(html, /<form method="post" action="\/notes">/);
+  assert.match(html, /class="btn-add"/);
 });
 
 test('adds a note and redirects with 303', async () => {
