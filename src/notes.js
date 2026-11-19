@@ -12,11 +12,17 @@ async function defaultStore() {
   if (!client) {
     const { PrismaClient } = await import('@prisma/client');
     const prisma = new PrismaClient();
-    client = {
-      count: () => prisma.note.count(),
-      lastNote: () => prisma.note.findFirst({ orderBy: { createdAt: 'desc' } }),
-      add: (body) => prisma.note.create({ data: { body } }),
-    };
+      client = {
+        count: () => prisma.note.count(),
+        list: (search) => prisma.note.findMany({
+          where: search ? { body: { contains: search } } : {},
+          orderBy: { createdAt: 'desc' }
+        }),
+        lastNote: () => prisma.note.findFirst({ orderBy: { createdAt: 'desc' } }),
+        add: (body) => prisma.note.create({ data: { body } }),
+        toggleFavorite: (id) => prisma.note.update({ where: { id }, data: { isFavorite: { toggle: true } } }),
+        delete: (id) => prisma.note.delete({ where: { id } }),
+      };
   }
   return client;
 }
@@ -38,16 +44,21 @@ export async function handleNotes(request, response, render, getStore = defaultS
   try {
     const store = await getStore();
     if (request.method === 'GET') {
-      const count = await store.count();
-      const last = typeof store.lastNote === 'function' ? await store.lastNote() : null;
-      const lastDateStr = last?.createdAt
-        ? new Date(last.createdAt).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' })
-        : null;
+      const url = new URL(request.url, `http://${request.headers.host}`);
+      const search = url.searchParams.get('search') || '';
+      const notes = await store.list(search);
+      const count = notes.length;
       const content = `
       <section class="card">
         <h1>Notes</h1>
-        <p>Notes enregistrées : <strong id="count">${count}</strong></p>
-        ${lastDateStr ? `<p>Dernière note ajoutée : <span id="last-date">${lastDateStr}</span></p>` : ''}
+        <form method="get" action="/notes">
+          <input name="search" value="${search}" placeholder="Rechercher..." />
+          <button type="submit">Rechercher</button>
+        </form>
+        <p>Notes trouvées : <strong id="count">${count}</strong></p>
+        <ul>
+          ${notes.map(n => `<li>${n.body} ${n.isFavorite ? '⭐' : ''}</li>`).join('')}
+        </ul>
         <form method="post" action="/notes">
           <input name="body" required maxlength="200" aria-label="Note" />
           <button type="submit" class="btn-add">Ajouter</button>
@@ -57,13 +68,21 @@ export async function handleNotes(request, response, render, getStore = defaultS
       response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
       response.end(render(content, '/notes'));
     } else if (request.method === 'POST') {
-      const body = new URLSearchParams(await readBody(request)).get('body')?.trim();
-      if (!body) {
-        response.writeHead(400, { 'Content-Type': 'text/plain; charset=utf-8' });
-        response.end('A note needs a body');
-        return;
+      const params = new URLSearchParams(await readBody(request));
+      const action = params.get('action');
+      if (action === 'delete') {
+        await store.delete(Number(params.get('id')));
+      } else if (action === 'favorite') {
+        await store.toggleFavorite(Number(params.get('id')));
+      } else {
+        const body = params.get('body')?.trim();
+        if (!body) {
+          response.writeHead(400, { 'Content-Type': 'text/plain; charset=utf-8' });
+          response.end('A note needs a body');
+          return;
+        }
+        await store.add(body.slice(0, 200));
       }
-      await store.add(body.slice(0, 200));
       response.writeHead(303, { Location: '/notes' });
       response.end();
     } else {

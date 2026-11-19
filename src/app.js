@@ -103,7 +103,7 @@ function layout(content, currentPath = '/') {
         background-color: #059669;
       }
       .btn-add {
-        background-color: #10b981;
+        background-color: #8b5cf6;
         color: #fff !important;
         padding: 0.5rem 1rem;
         border-radius: 6px;
@@ -113,7 +113,7 @@ function layout(content, currentPath = '/') {
         cursor: pointer;
       }
       .btn-add:hover {
-        background-color: #059669;
+        background-color: #7c3aed;
       }
       main {
         max-width: 1100px;

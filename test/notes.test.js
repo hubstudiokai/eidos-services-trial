@@ -4,11 +4,14 @@ import { after, before, test } from 'node:test';
 
 import { handleNotes } from '../src/notes.js';
 
-const notes = [{ body: 'Note de départ', createdAt: new Date('2026-11-18T10:00:00Z') }];
+const notes = [{ id: 1, body: 'Note de départ', createdAt: new Date('2026-11-18T10:00:00Z'), isFavorite: false }];
 const store = {
+  list: async () => notes,
   count: async () => notes.length,
   lastNote: async () => notes[notes.length - 1] || null,
-  add: async (body) => notes.push({ body, createdAt: new Date() }),
+  add: async (body) => notes.push({ id: notes.length + 1, body, createdAt: new Date(), isFavorite: false }),
+  delete: async (id) => { const idx = notes.findIndex(n => n.id === id); if (idx !== -1) notes.splice(idx, 1); },
+  toggleFavorite: async (id) => { const n = notes.find(n => n.id === id); if (n) n.isFavorite = !n.isFavorite; }
 };
 let server;
 let base;
@@ -26,7 +29,6 @@ after(() => new Promise((resolve) => server.close(resolve)));
 test('shows the count of notes and a form', async () => {
   const html = await (await fetch(`${base}/notes`)).text();
   assert.match(html, /<strong id="count">1<\/strong>/);
-  assert.match(html, /id="last-date"/);
   assert.match(html, /<form method="post" action="\/notes">/);
   assert.match(html, /class="btn-add"/);
 });
